@@ -84,6 +84,8 @@ const LoginPage = () => {
           <p>Agree to the Term of Use & privacy policy</p>
         </div>
 
+        
+
         <div className="flex flex-col gap-2">
           {currentState === "sign-up" ? (
             <p className="text-sm text-gray-600">
