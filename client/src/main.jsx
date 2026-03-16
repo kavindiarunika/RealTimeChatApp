@@ -5,10 +5,17 @@ import App from './App.jsx'
 import React from 'react'
 import { BrowserRouter } from 'react-router-dom'
 import { AuthProvider } from '../context/AuthContext.jsx'
+import { ChatProvider } from '../context/chatContext.jsx'
+
+
+
 createRoot(document.getElementById('root')).render(
   <BrowserRouter>
   <AuthProvider>
-        <App/>
+    <ChatProvider>
+<App/>
+    </ChatProvider>
+        
   </AuthProvider>
  
   </BrowserRouter>

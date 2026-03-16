@@ -1,6 +1,10 @@
 import React from "react";
 import assets from "../assets/assets";
 import { useState } from "react";
+import { AuthContext } from "../../context/AuthContext";
+import { useContext } from "react";
+import { toast } from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 const LoginPage = () => {
   const [currentState, setCurrentState] = useState("sign-up");
@@ -10,14 +14,22 @@ const LoginPage = () => {
   const [bio, setBio] = useState("");
   const [isDataSubmit, setIsDataSubmit] = useState(false);
 
+  const { login } = useContext(AuthContext);
 
-  const onSubmitHander =(event)=>{
+  const onSubmitHander = (event) => {
     event.preventDefault();
 
-    if(currentState === "sign-up" && !isDataSubmit){
-      setIsDataSubmit(true)
+    if (currentState === "sign-up" && !isDataSubmit) {
+      setIsDataSubmit(true);
+      return;
     }
-  }
+    login(currentState === "Sign-up" ? "signup" : "login", {
+      fullName,
+      email,
+      password,
+      bio,
+    });
+  };
 
   return (
     <div className="min-h-screen bg-cover bg-center flex items-center justify-between gap-8 sm:justify-evenly max-sm:flex-col backdrop-blur-2xl">
@@ -27,18 +39,27 @@ const LoginPage = () => {
 
       {/* Right Section */}
 
-      <form onSubmit={onSubmitHander} className="border-2 bg-white/8 text-white border-gray-500 p-6 flex flex-col gap-6 rounded-lg shadow-lg">
+      <form
+        onSubmit={onSubmitHander}
+        className="border-2 bg-white/8 text-white border-gray-500 p-6 flex flex-col gap-6 rounded-lg shadow-lg"
+      >
         <h2 className="font-medium text-2xl flex justify-between items-center">
           {" "}
           {currentState}
-          {isDataSubmit &&  <img onClick={()=>setIsDataSubmit(false)} src={assets.arrow_icon} alt="" className="w-5 cursor-pointer" /> }
-         
+          {isDataSubmit && (
+            <img
+              onClick={() => setIsDataSubmit(false)}
+              src={assets.arrow_icon}
+              alt=""
+              className="w-5 cursor-pointer"
+            />
+          )}
         </h2>
         {currentState === "sign-up" && !isDataSubmit && (
           <input
             type="text"
             className="p-2 border border-gray-500 rounded-mg focus:outline-none"
-            placeholder="full time"
+            placeholder="full name"
             required
           />
         )}
@@ -47,7 +68,7 @@ const LoginPage = () => {
           <>
             <input
               value={email}
-              onChange={(e) => setEmail(email.target.value)}
+              onChange={(e) => setEmail(e.target.value)}
               type="email"
               placeholder="email address"
               className="p-2 border boder-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ting-indigo-500"
@@ -55,7 +76,7 @@ const LoginPage = () => {
             />
             <input
               value={password}
-              onChange={(e) => setPassword(password.target.value)}
+              onChange={(e) => setPassword(e.target.value)}
               type="password"
               placeholder="password"
               className="p-2 border boder-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ting-indigo-500"
@@ -83,8 +104,6 @@ const LoginPage = () => {
           <input type="checkbox" name="" id="" />
           <p>Agree to the Term of Use & privacy policy</p>
         </div>
-
-        
 
         <div className="flex flex-col gap-2">
           {currentState === "sign-up" ? (
