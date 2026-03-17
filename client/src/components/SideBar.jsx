@@ -1,13 +1,37 @@
-import React from "react";
-import assets, { userDummyData } from "../assets/assets";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { AuthContext } from "../../context/AuthContext";
+import { ChatContext } from "../../context/chatContext";
 const SideBar = ({ selectedUser, setSelectedUser }) => {
-  const navigate = useNavigate();
+  
    
+  const {messages,
+    users,
+    selectedUser,
+    unseenmessages,
+    getUsers,
+    getMessages,
+    sendMessage,
+    setSelectedUser,
+    subscribeTomessages} =useContext(ChatContext);
 
-  const {logut} = useContext(AuthContext);
+
+
+  const { logut, onlineUsers } = useContext(AuthContext);
+ 
+  const[input,setinput] =useState(false);
+
+  const navigate =useNavigate();
+
+  useEffect(()=>{
+
+    getUsers();
+
+  },[onlineUsers])
+
+ const  filterUsers =input? users.filter((users)=>users.fullname.toLowerCase().includes(input.toLowerCase())):users ;
+ 
   return (
     <div
       className={`bg-[#8185b2]/10 h-full p-5 rounded-r-xl overflow-y-auto text-white 
@@ -46,6 +70,7 @@ const SideBar = ({ selectedUser, setSelectedUser }) => {
         <div className="bg-[#282142] rounded-full flex items-center gap-2 py-3 px-4 mt-5">
           <img src={assets.search_icon} alt="search" className="w-3" />
           <input
+          onChange={(e) =>setinput(e.target.value)}
             type="text"
             className="bg-transparent outline-none text-white text-xs placeholder-[#c8c8c8] flex-1"
             placeholder="Search user..."
@@ -55,7 +80,7 @@ const SideBar = ({ selectedUser, setSelectedUser }) => {
 
       {/* Users list */}
       <div className="flex flex-col gap-1">
-        {userDummyData.map((user, index) => (
+        {filterUsers.map((user, index) => (
           <div
             key={user._id || index}
             onClick={() => setSelectedUser(user)}
@@ -74,16 +99,16 @@ const SideBar = ({ selectedUser, setSelectedUser }) => {
 
             <div className="flex flex-col leading-5">
               <p>{user.fullName}</p>
-              {index < 3 ? (
+              {onlineUsers.includes(user._id) ? (
                 <span className="text-green-400 text-xs">Online</span>
               ) : (
                 <span className="text-neutral-400 text-xs">Offline</span>
               )}
             </div>
 
-            {index > 2 && (
+            {unseenmessages[user._id] > 0 && (
               <span className="absolute top-3 right-4 text-xs h-5 w-5 flex items-center justify-center rounded-full bg-violet-500/50">
-                {index}
+                {unseenmessages[user._id]}
               </span>
             )}
           </div>
