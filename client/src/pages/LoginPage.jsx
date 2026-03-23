@@ -3,8 +3,6 @@ import assets from "../assets/assets";
 import { useState } from "react";
 import { AuthContext } from "../../context/AuthContext";
 import { useContext } from "react";
-import { toast } from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
 
 const LoginPage = () => {
   const [currentState, setCurrentState] = useState("sign-up");
@@ -23,7 +21,7 @@ const LoginPage = () => {
       setIsDataSubmit(true);
       return;
     }
-    login(currentState === "Sign-up" ? "signup" : "login", {
+    login(currentState === "sign-up" ? "signup" : "login", {
       fullName,
       email,
       password,
@@ -61,6 +59,8 @@ const LoginPage = () => {
             className="p-2 border border-gray-500 rounded-mg focus:outline-none"
             placeholder="full name"
             required
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
           />
         )}
 
@@ -97,7 +97,7 @@ const LoginPage = () => {
           type="submit"
           className="py-3 bg-gradient-to-r from-purple-400 to-violet-600 text-white rounded-md cursor-pointer"
         >
-          {currentState === "sign-up" ? "create Accound" : "Login now"}
+          {currentState === "sign-up" ? "create Account" : "Login now"}
         </button>
 
         <div className="flex items-center gap-2 text-sm textgray-gray-500">

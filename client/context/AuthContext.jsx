@@ -1,6 +1,7 @@
+/* eslint-disable react-refresh/only-export-components */
 import { useEffect, useState } from "react";
 import { createContext } from "react";
-import { connect, io } from "socket.io-client";
+import { io } from "socket.io-client";
 import axios from "axios";
 import React from "react";
 import { toast } from "react-hot-toast";
@@ -12,12 +13,12 @@ export const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem("token"));
   const [authUser, setAuthUser] = useState(null);
-  const [onlineUsers, setOnlieUsers] = useState(null);
+  const [onlineUsers, setOnlineUsers] = useState([]);
   const [socket, setSocket] = useState(null);
 
   const checkAuth = async () => {
     try {
-      const { data } = await axios.get("/api/auth/check");
+      const { data } = await axios.get("http://localhost:4000/api/user/check");
 
       if (data.success) {
         setAuthUser(data.user);
@@ -49,28 +50,25 @@ export const AuthProvider = ({ children }) => {
 
   //logout function to loggout
 
-  const logut = async () => {
+  const logout = async () => {
     localStorage.removeItem("token");
     setToken(null);
     setAuthUser(null);
-    setOnlieUsers([]);
+    setOnlineUsers([]);
     axios.defaults.headers.common["token"] = null;
     toast.success("logout successfully");
-    socket.disconnect();
+    socket?.disconnect();
   };
 
   //update profile function to handle profile update
 
-  const updateProfile = async () => {
+  const updateProfile = async (data) => {
     try {
-      const { data } = await axios.put("/api/auth/update-profile", body);
-
-      if (data.success) {
-        setAuthUser(data.user);
-        toast.success("update successfully");
-      }
+      const res = await axios.put("/api/user/update-profile", data);
+      // update user in state if needed
+      setAuthUser(res.data.user);
     } catch (error) {
-      toast.error(error.message);
+      console.log(error);
     }
   };
 
@@ -83,20 +81,30 @@ export const AuthProvider = ({ children }) => {
       },
     });
 
-    newSocket.conncet();
+    newSocket.connect();
     setSocket(newSocket);
 
     newSocket.on("online-users", (userIds) => {
-      setOnlieUsers(userIds);
+      setOnlineUsers(userIds);
     });
   };
 
   useEffect(() => {
-    if (token) {
-      axios.defaults.headers.common["token"] = token;
-      checkAuth();
-    }
-  }, []);
+    if (!token) return;
+
+    axios.defaults.headers.common["token"] = token;
+
+    const verify = async () => {
+      try {
+        await checkAuth();
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    verify();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token]);
 
   const value = {
     axios,
@@ -104,7 +112,7 @@ export const AuthProvider = ({ children }) => {
     onlineUsers,
     socket,
     login,
-    logut,
+    logout,
     updateProfile,
   };
 
